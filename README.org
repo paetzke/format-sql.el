@@ -3,7 +3,7 @@
 [[https://travis-ci.org/paetzke/py-format-sql.el][https://travis-ci.org/paetzke/py-format-sql.el.svg?branch=master]]
 
 
-Provides the =py-format-sql-buffer= command, which uses the external =format-sql= tool to format SQL in the current buffer.
+Provides the =py-format-sql-buffer= command, which uses the external [[https://github.com/paetzke/format-sql][format-sql]] tool to format SQL in the current buffer.
 
 Install =format-sql= and download =py-format-sql=
 
