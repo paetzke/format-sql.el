@@ -1,0 +1,28 @@
+* py-format-sql.el
+
+[[https://travis-ci.org/paetzke/py-format-sql.el][https://travis-ci.org/paetzke/py-format-sql.el.svg?branch=master]]
+
+
+Provides the =py-format-sql-buffer= command, which uses the external =format-sql= tool to format SQL in the current buffer.
+
+Install =format-sql= and download =py-format-sql=
+
+#+BEGIN_SRC bash
+$ pip install format-sql
+$ wget https://raw.githubusercontent.com/paetzke/py-format-sql.el/master/py-format-sql.el \
+       -O /your/path/py-format-sql.el
+#+END_SRC
+
+
+After that you can use =py-format-sql.el=
+
+#+BEGIN_SRC lisp
+M-x py-format-sql-buffer RET
+#+END_SRC
+
+
+You can also format a region in the buffer by using =py-format-sql-region=.
+
+#+BEGIN_SRC lisp
+M-x py-format-sql-region RET
+#+END_SRC
