@@ -1,40 +1,40 @@
-;;; py-format-sql.el --- Use format-sql to make your SQL readable in directly Emacs.
+;;; format-sql.el --- Use format-sql to make your SQL readable in directly Emacs.
 
 ;; Copyright (C) 2015, Friedrich Paetzke <paetzke@fastmail.fm>
 
 ;; Author: Friedrich Paetzke <paetzke@fastmail.fm>
-;; URL: https://github.com/paetzke/py-format-sql.el
+;; URL: https://github.com/paetzke/format-sql.el
 ;; Version: 0.1
 
 ;;; Commentary:
 
-;; Provides the `py-format-sql-buffer' command, which uses the external
+;; Provides the `format-sql-buffer' command, which uses the external
 ;; "format-sql" tool to format SQL in the current buffer.
 
 ;; To format SQL in a buffer, use the following code:
 
-;;   M-x py-format-sql-buffer RET
+;;   M-x format-sql-buffer RET
 
 ;; To format SQL in a region, use the following code:
 
-;;   M-x py-format-sql-region RET
+;;   M-x format-sql-region RET
 
 ;;; Code:
 
 
-(defgroup py-format-sql nil
+(defgroup format-sql nil
   "Use format-sql to sort the imports in a Python buffer."
   :group 'convenience
-  :prefix "py-format-sql-")
+  :prefix "format-sql-")
 
 
-(defcustom py-format-sql-options nil
+(defcustom format-sql-options nil
   "Options used for format-sql."
-  :group 'py-format-sql
+  :group 'format-sql
   :type '(repeat (string :tag "option")))
 
 
-(defun py-format-sql-apply-rcs-patch (patch-buffer)
+(defun format-sql-apply-rcs-patch (patch-buffer)
   "Apply an RCS-formatted diff from PATCH-BUFFER to the current buffer."
   (let ((target-buffer (current-buffer))
         (line-offset 0))
@@ -43,7 +43,7 @@
         (goto-char (point-min))
         (while (not (eobp))
           (unless (looking-at "^\\([ad]\\)\\([0-9]+\\) \\([0-9]+\\)")
-            (error "invalid rcs patch or internal error in py-format-sql-apply-rcs-patch"))
+            (error "invalid rcs patch or internal error in format-sql-apply-rcs-patch"))
           (forward-line)
           (let ((action (match-string 1))
                 (from (string-to-number (match-string 2)))
@@ -65,16 +65,16 @@
                 (setq line-offset (+ line-offset len))
                 (kill-whole-line len)))
              (t
-              (error "invalid rcs patch or internal error in py-format-sql-apply-rcs-patch")))))))))
+              (error "invalid rcs patch or internal error in format-sql-apply-rcs-patch")))))))))
 
 
-(defun py-format-sql-replace-region (filename)
+(defun format-sql-replace-region (filename)
   (delete-region (region-beginning) (region-end))
   (insert-file-contents filename))
 
 
 ;;;###autoload
-(defun py-format-sql (&optional only-on-region)
+(defun format-sql (&optional only-on-region)
   "Uses the \"format-sql\" tool to reformat the current buffer."
   (interactive "r")
   (when (not (executable-find "format-sql"))
@@ -101,15 +101,15 @@
 
     (if (zerop (apply 'call-process "format-sql" nil errbuf nil
                       (append `(" " , tmpfile, " ", (concat "--types=" my-file-type))
-                              py-format-sql-options)))
+                              format-sql-options)))
         (if (zerop (call-process-region (point-min) (point-max) "diff" nil patchbuf nil "-n" "-" tmpfile))
             (progn
               (kill-buffer errbuf)
               (message "Buffer is already format-sqled"))
 
           (if only-on-region
-              (py-format-sql-replace-region tmpfile)
-            (py-format-sql-apply-rcs-patch patchbuf))
+              (format-sql-replace-region tmpfile)
+            (format-sql-apply-rcs-patch patchbuf))
 
           (kill-buffer errbuf)
           (message "Applied format-sql."))
@@ -119,21 +119,21 @@
 
 
 ;;;###autoload
-(defun py-format-sql-region ()
+(defun format-sql-region ()
   "Uses the \"format-sql\" tool to reformat the current region."
   (interactive)
-  (py-format-sql t))
+  (format-sql t))
 
 
 ;;;###autoload
-(defun py-format-sql-buffer ()
+(defun format-sql-buffer ()
   "Uses the \"format-sql\" tool to reformat the current buffer."
   (interactive)
-  (condition-case err (py-format-sql)
+  (condition-case err (format-sql)
     (error (message "%s" (error-message-string err)))))
 
 
-(provide 'py-format-sql)
+(provide 'format-sql)
 
 
-;;; py-format-sql.el ends here
+;;; format-sql.el ends here
