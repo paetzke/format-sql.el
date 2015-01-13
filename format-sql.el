@@ -73,6 +73,16 @@
   (insert-file-contents filename))
 
 
+(defun get-file-type ()
+  (let ((my-file-type (file-name-extension buffer-file-name)))
+    (if (string= my-file-type "py")
+        "py"
+      "sql"
+      )
+    )
+  )
+
+
 ;;;###autoload
 (defun format-sql (&optional only-on-region)
   "Uses the \"format-sql\" tool to reformat the current buffer."
@@ -81,7 +91,7 @@
     (error "\"format-sql\" command not found. Install format-sql with \"pip install format-sql\""))
 
   (let* (
-         (my-file-type (file-name-extension buffer-file-name))
+         (my-file-type (get-file-type))
          (tmpfile (make-temp-file "format-sql" nil (concat "." my-file-type)))
          (patchbuf (get-buffer-create "*format-sql patch*"))
          (errbuf (get-buffer-create "*format-sql Errors*"))
