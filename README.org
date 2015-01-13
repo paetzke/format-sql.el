@@ -1,6 +1,7 @@
 * format-sql.el
 
 [[https://travis-ci.org/paetzke/format-sql.el][https://travis-ci.org/paetzke/format-sql.el.svg?branch=master]]
+[[http://melpa.org/#/format-sql][http://melpa.org/packages/format-sql-badge.svg]]
 
 
 Provides the =format-sql-buffer= command, which uses the external [[https://github.com/paetzke/format-sql][format-sql]] tool to format SQL in the current buffer.
@@ -11,6 +12,13 @@ Install =format-sql= and download =format-sql.el=
 $ pip install format-sql
 $ wget https://raw.githubusercontent.com/paetzke/format-sql.el/master/format-sql.el \
        -O /your/path/format-sql.el
+#+END_SRC
+
+You can also install format-sql.el from MELPA:
+
+#+BEGIN_SRC lisp
+M-x package-install RET
+format-sql RET
 #+END_SRC
 
 
