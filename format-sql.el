@@ -110,8 +110,7 @@
       (write-region nil nil tmpfile))
 
     (if (zerop (apply 'call-process "format-sql" nil errbuf nil
-                      (append `(" " , tmpfile, " ", (concat "--types=" my-file-type))
-                              format-sql-options)))
+                      (append `(" " , tmpfile, " ") format-sql-options)))
         (if (zerop (call-process-region (point-min) (point-max) "diff" nil patchbuf nil "-n" "-" tmpfile))
             (progn
               (kill-buffer errbuf)
