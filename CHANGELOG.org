@@ -1,5 +1,9 @@
 * CHANGELOG
 
+** 0.3
+- Removed types parameter.
+  =format-sql= version >= 0.4 don't need this parameter anymore.
+
 ** 0.2
 - Treat non-Python files as SQL files
 
