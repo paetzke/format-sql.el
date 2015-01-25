@@ -6,6 +6,8 @@
 
 Provides the =format-sql-buffer= command, which uses the external [[https://github.com/paetzke/format-sql][format-sql]] tool to format SQL in the current buffer.
 
+[[https://paetzke.me/static/images/format-sql.el.gif]]
+
 Install =format-sql= and download =format-sql.el=
 
 #+BEGIN_SRC bash
@@ -21,13 +23,11 @@ M-x package-install RET
 format-sql RET
 #+END_SRC
 
-
 After that you can use =format-sql.el=
 
 #+BEGIN_SRC lisp
 M-x format-sql-buffer RET
 #+END_SRC
-
 
 You can also format a region in the buffer by using =format-sql-region=.
 
