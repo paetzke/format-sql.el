@@ -3,4 +3,4 @@ python:
 - "3.4"
 install:
  - pip install format-sql
-script: ./test.bash
+script: ./test.sh
