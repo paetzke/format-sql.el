@@ -34,40 +34,6 @@
   :type '(repeat (string :tag "option")))
 
 
-(defun format-sql-apply-rcs-patch (patch-buffer)
-  "Apply an RCS-formatted diff from PATCH-BUFFER to the current buffer."
-  (let ((target-buffer (current-buffer))
-        (line-offset 0))
-    (save-excursion
-      (with-current-buffer patch-buffer
-        (goto-char (point-min))
-        (while (not (eobp))
-          (unless (looking-at "^\\([ad]\\)\\([0-9]+\\) \\([0-9]+\\)")
-            (error "invalid rcs patch or internal error in format-sql-apply-rcs-patch"))
-          (forward-line)
-          (let ((action (match-string 1))
-                (from (string-to-number (match-string 2)))
-                (len  (string-to-number (match-string 3))))
-            (cond
-             ((equal action "a")
-              (let ((start (point)))
-                (forward-line len)
-                (let ((text (buffer-substring start (point))))
-                  (with-current-buffer target-buffer
-                    (setq line-offset (- line-offset len))
-                    (goto-char (point-min))
-                    (forward-line (- from len line-offset))
-                    (insert text)))))
-             ((equal action "d")
-              (with-current-buffer target-buffer
-                (goto-char (point-min))
-                (forward-line (- from line-offset 1))
-                (setq line-offset (+ line-offset len))
-                (kill-whole-line len)))
-             (t
-              (error "invalid rcs patch or internal error in format-sql-apply-rcs-patch")))))))))
-
-
 (defun format-sql-replace-region (filename)
   (delete-region (region-beginning) (region-end))
   (insert-file-contents filename))
@@ -118,7 +84,7 @@
 
           (if only-on-region
               (format-sql-replace-region tmpfile)
-            (format-sql-apply-rcs-patch patchbuf))
+            (format-sql-bf--apply-rcs-patch patchbuf))
 
           (kill-buffer errbuf)
           (message "Applied format-sql."))
