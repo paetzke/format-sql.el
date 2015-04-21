@@ -34,7 +34,51 @@
   :type '(repeat (string :tag "option")))
 
 
-(defun format-sql-apply-rcs-patch (patch-buffer)
+(defun format-sql--call-executable (errbuf file)
+  (zerop (apply 'call-process "format-sql" nil errbuf nil
+                (append `(" " , file, " ") format-sql-options))))
+
+
+(defun get-file-type ()
+  (let ((my-file-type (file-name-extension buffer-file-name)))
+    (if (string= my-file-type "py")
+        "py"
+      "sql")))
+
+
+(defun format-sql--call (only-on-region)
+  "Uses the \"format-sql\" tool to reformat the current buffer."
+  (interactive "r")
+  (format-sql-bf--apply-executable-to-buffer "format-sql"
+                                             'format-sql--call-executable
+                                             only-on-region
+                                             (get-file-type)))
+
+
+;;;###autoload
+(defun format-sql-region ()
+  "Uses the \"format-sql\" tool to reformat the current region."
+  (interactive)
+  (format-sql--call t))
+
+
+;;;###autoload
+(defun format-sql-buffer ()
+  "Uses the \"format-sql\" tool to reformat the current buffer."
+  (interactive)
+  (format-sql--call nil))
+
+
+;; BEGIN GENERATED -----------------
+;; !!! This file is generated !!!
+;; buftra.el
+;; Copyright (C) 2015, Friedrich Paetzke <paetzke@fastmail.fm>
+;; Author: Friedrich Paetzke <paetzke@fastmail.fm>
+;; URL: https://github.com/paetzke/buftra.el
+;; Version: 0.4
+
+
+(defun format-sql-bf--apply-rcs-patch (patch-buffer)
   "Apply an RCS-formatted diff from PATCH-BUFFER to the current buffer."
   (let ((target-buffer (current-buffer))
         (line-offset 0))
@@ -43,7 +87,7 @@
         (goto-char (point-min))
         (while (not (eobp))
           (unless (looking-at "^\\([ad]\\)\\([0-9]+\\) \\([0-9]+\\)")
-            (error "invalid rcs patch or internal error in format-sql-apply-rcs-patch"))
+            (error "invalid rcs patch or internal error in format-sql-bf--apply-rcs-patch"))
           (forward-line)
           (let ((action (match-string 1))
                 (from (string-to-number (match-string 2)))
@@ -65,40 +109,26 @@
                 (setq line-offset (+ line-offset len))
                 (kill-whole-line len)))
              (t
-              (error "invalid rcs patch or internal error in format-sql-apply-rcs-patch")))))))))
+              (error "invalid rcs patch or internal error in format-sql-bf-apply--rcs-patch")))))))))
 
 
-(defun format-sql-replace-region (filename)
+(defun format-sql-bf--replace-region (filename)
   (delete-region (region-beginning) (region-end))
   (insert-file-contents filename))
 
 
-(defun get-file-type ()
-  (let ((my-file-type (file-name-extension buffer-file-name)))
-    (if (string= my-file-type "py")
-        "py"
-      "sql"
-      )
-    )
-  )
-
-
-;;;###autoload
-(defun format-sql (&optional only-on-region)
-  "Uses the \"format-sql\" tool to reformat the current buffer."
-  (interactive "r")
-  (when (not (executable-find "format-sql"))
-    (error "\"format-sql\" command not found. Install format-sql with \"pip install format-sql\""))
-
-  (let* (
-         (my-file-type (get-file-type))
-         (tmpfile (make-temp-file "format-sql" nil (concat "." my-file-type)))
-         (patchbuf (get-buffer-create "*format-sql patch*"))
-         (errbuf (get-buffer-create "*format-sql Errors*"))
-         (coding-system-for-read 'utf-8)
-         (coding-system-for-write 'utf-8)
-         )
-
+(defun format-sql-bf--apply-executable-to-buffer (executable-name
+                                           executable-call
+                                           only-on-region
+                                           file-extension)
+  "Formats the current buffer according to the executable"
+  (when (not (executable-find executable-name))
+    (error (format "%s command not found." executable-name)))
+  (let ((tmpfile (make-temp-file executable-name nil (concat "." file-extension)))
+        (patchbuf (get-buffer-create (format "*%s patch*" executable-name)))
+        (errbuf (get-buffer-create (format "*%s Errors*" executable-name)))
+        (coding-system-for-read buffer-file-coding-system)
+        (coding-system-for-write buffer-file-coding-system))
     (with-current-buffer errbuf
       (setq buffer-read-only nil)
       (erase-buffer))
@@ -109,37 +139,27 @@
         (write-region (region-beginning) (region-end) tmpfile)
       (write-region nil nil tmpfile))
 
-    (if (zerop (apply 'call-process "format-sql" nil errbuf nil
-                      (append `(" " , tmpfile, " ") format-sql-options)))
-        (if (zerop (call-process-region (point-min) (point-max) "diff" nil patchbuf nil "-n" "-" tmpfile))
+    (if (funcall executable-call errbuf tmpfile)
+        (if (zerop (call-process-region (point-min) (point-max) "diff" nil
+                                        patchbuf nil "-n" "-" tmpfile))
             (progn
               (kill-buffer errbuf)
-              (message "Buffer is already format-sqled"))
+              (message (format "Buffer is already %sed" executable-name)))
 
           (if only-on-region
-              (format-sql-replace-region tmpfile)
-            (format-sql-apply-rcs-patch patchbuf))
+              (format-sql-bf--replace-region tmpfile)
+            (format-sql-bf--apply-rcs-patch patchbuf))
 
           (kill-buffer errbuf)
-          (message "Applied format-sql."))
-      (error "Could not apply format-sql. Check *format-sql Errors* for details"))
+          (message (format "Applied %s" executable-name)))
+      (error (format "Could not apply %s. Check *%s Errors* for details"
+                     executable-name executable-name)))
     (kill-buffer patchbuf)
     (delete-file tmpfile)))
 
 
-;;;###autoload
-(defun format-sql-region ()
-  "Uses the \"format-sql\" tool to reformat the current region."
-  (interactive)
-  (format-sql t))
-
-
-;;;###autoload
-(defun format-sql-buffer ()
-  "Uses the \"format-sql\" tool to reformat the current buffer."
-  (interactive)
-  (condition-case err (format-sql)
-    (error (message "%s" (error-message-string err)))))
+;; format-sql-bf.el ends here
+;; END GENERATED -------------------
 
 
 (provide 'format-sql)
