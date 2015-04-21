@@ -34,9 +34,6 @@
   :type '(repeat (string :tag "option")))
 
 
-(defun format-sql-replace-region (filename)
-  (delete-region (region-beginning) (region-end))
-  (insert-file-contents filename))
 
 
 (defun get-file-type ()
