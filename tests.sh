@@ -64,6 +64,21 @@ test_03() {
 }
 
 
+test_04() {
+    echo $FUNCNAME
+    rm $TEST_FILE || true
+    emacs --no-init-file -nw \
+          --load ./tests/tests.el \
+          --load format-sql.el \
+          ./tests/04/before.sql \
+          -f mark-whole-buffer \
+          -f format-sql-region \
+          -f write-test-file \
+          -f kill-emacs
+    diff $TEST_FILE ./tests/04/after.sql
+}
+
+
 main() {
     if [ "$TRAVIS" = "true" ]; then
         install_emacs24
@@ -73,6 +88,7 @@ main() {
     test_01
     test_02
     test_03
+    test_04
 }
 
 
