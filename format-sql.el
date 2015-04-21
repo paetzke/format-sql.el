@@ -34,75 +34,39 @@
   :type '(repeat (string :tag "option")))
 
 
+(defun format-sql--call-executable (errbuf file)
+  (zerop (apply 'call-process "format-sql" nil errbuf nil
+                (append `(" " , file, " ") format-sql-options))))
 
 
 (defun get-file-type ()
   (let ((my-file-type (file-name-extension buffer-file-name)))
     (if (string= my-file-type "py")
         "py"
-      "sql"
-      )
-    )
-  )
+      "sql")))
 
 
-;;;###autoload
-(defun format-sql (&optional only-on-region)
+(defun format-sql--call (only-on-region)
   "Uses the \"format-sql\" tool to reformat the current buffer."
   (interactive "r")
-  (when (not (executable-find "format-sql"))
-    (error "\"format-sql\" command not found. Install format-sql with \"pip install format-sql\""))
-
-  (let* (
-         (my-file-type (get-file-type))
-         (tmpfile (make-temp-file "format-sql" nil (concat "." my-file-type)))
-         (patchbuf (get-buffer-create "*format-sql patch*"))
-         (errbuf (get-buffer-create "*format-sql Errors*"))
-         (coding-system-for-read 'utf-8)
-         (coding-system-for-write 'utf-8)
-         )
-
-    (with-current-buffer errbuf
-      (setq buffer-read-only nil)
-      (erase-buffer))
-    (with-current-buffer patchbuf
-      (erase-buffer))
-
-    (if (and only-on-region (use-region-p))
-        (write-region (region-beginning) (region-end) tmpfile)
-      (write-region nil nil tmpfile))
-
-    (if (zerop (apply 'call-process "format-sql" nil errbuf nil
-                      (append `(" " , tmpfile, " ") format-sql-options)))
-        (if (zerop (call-process-region (point-min) (point-max) "diff" nil patchbuf nil "-n" "-" tmpfile))
-            (progn
-              (kill-buffer errbuf)
-              (message "Buffer is already format-sqled"))
-
-          (if only-on-region
-              (format-sql-replace-region tmpfile)
-            (format-sql-bf--apply-rcs-patch patchbuf))
-
-          (kill-buffer errbuf)
-          (message "Applied format-sql."))
-      (error "Could not apply format-sql. Check *format-sql Errors* for details"))
-    (kill-buffer patchbuf)
-    (delete-file tmpfile)))
+  (format-sql-bf--apply-executable-to-buffer "format-sql"
+                                             'format-sql--call-executable
+                                             only-on-region
+                                             (get-file-type)))
 
 
 ;;;###autoload
 (defun format-sql-region ()
   "Uses the \"format-sql\" tool to reformat the current region."
   (interactive)
-  (format-sql t))
+  (format-sql--call t))
 
 
 ;;;###autoload
 (defun format-sql-buffer ()
   "Uses the \"format-sql\" tool to reformat the current buffer."
   (interactive)
-  (condition-case err (format-sql)
-    (error (message "%s" (error-message-string err)))))
+  (format-sql--call nil))
 
 
 ;; BEGIN GENERATED -----------------
