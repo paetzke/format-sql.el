@@ -8,8 +8,8 @@
 
 ;;; Commentary:
 
-;; Provides the `format-sql-buffer' command, which uses the external
-;; "format-sql" tool to format SQL in the current buffer.
+;; Provides commands, which use the external `format-sql' tool to
+;; format SQL in the current buffer.
 
 ;; To format SQL in a buffer, use the following code:
 

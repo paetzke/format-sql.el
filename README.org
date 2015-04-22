@@ -4,7 +4,7 @@
 [[http://melpa.org/#/format-sql][http://melpa.org/packages/format-sql-badge.svg]]
 
 
-Provides the =format-sql-buffer= command, which uses the external [[https://github.com/paetzke/format-sql][format-sql]] tool to format SQL in the current buffer.
+Provides commands, which use the external [[https://github.com/paetzke/format-sql][format-sql]] tool to format SQL in the current buffer.
 
 [[https://paetzke.me/static/images/format-sql.el.gif]]
 
@@ -25,12 +25,22 @@ format-sql RET
 
 After that you can use =format-sql.el=
 
-#+BEGIN_SRC lisp
-M-x format-sql-buffer RET
-#+END_SRC
 
-You can also format a region in the buffer by using =format-sql-region=.
+** Functions
 
-#+BEGIN_SRC lisp
-M-x format-sql-region RET
-#+END_SRC
+- =M-x format-sql-buffer RET=: Uses =format-sql= to reformat the current buffer.
+- =M-x format-sql-region RET=: Uses =format-sql= to reformat the current region.
+
+
+** Bugs and improvements
+
+Feel free to open tickets or send pull requests with improvements.
+
+
+** Copyright
+
+Copyright (c) 2015 Friedrich Pätzke.
+See [[LICENSE]] for further details.
+
+
+So long. [[https://twitter.com/paetzke][Friedrich]].
